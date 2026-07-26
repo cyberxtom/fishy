@@ -1,6 +1,6 @@
 # fishy
 
-CLI-first phishing framework with real scraped login pages, credential validation against live sites, and 2FA capture. Uses Puppeteer to clone exact login interfaces from real services, validates submitted credentials against genuine auth endpoints, and serves pages via local or tunneled URLs.
+CLI-first phishing framework with real scraped login pages, credential validation against live sites, and 2FA capture. Validates submitted credentials against genuine auth endpoints, and serves pages via local or tunneled URLs.
 
 **For authorized security testing and educational purposes only.**
 
