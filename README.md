@@ -18,6 +18,8 @@ CLI-first phishing framework with real scraped login pages, credential validatio
 ## Installation
 
 ```bash
+git clone https://github.com/cyberxtom/fishy.git
+cd fishy
 apt install chromium
 npm install
 ```
@@ -50,42 +52,6 @@ node bin/fishy.js serve instagram --tunnel ngrok
 node bin/fishy.js captures
 ```
 
-## Architecture
-
-```
-bin/fishy.js          CLI entry point (Commander + Inquirer TUI)
-commands/
-  serve.js            Express server with capture script injection
-  scrape.js           Puppeteer-based page scraper
-  tunnel.js           Tunnel manager (ngrok, serveo, cloudflared, etc.)
-  list.js             Service and capture listing
-lib/
-  server.js           Express server — capture script, CSP stripping, DOM fixing
-  scraper.js          Puppeteer launcher with pre-capture click sequences
-  service-registry.js Service definitions and auth validation logic
-  forwarder.js        Credential forwarding to real auth endpoints
-  capture.js          Credential store (JSON + CSV output)
-  detect-2fa.js       2FA detection (URL patterns + HTML keywords)
-  tunnel.js           Tunnel launcher wrappers
-  tui.js              Interactive TUI menus
-  ui.js               Terminal formatting helpers
-```
-
-## Services
-
-| Service    | Scraped | Notes |
-|------------|---------|-------|
-| Instagram  | ✓       | `<div role="button">` login, 2FA supported |
-| TikTok     | ✓       | Multi-step pre-capture with email tab navigation |
-| Snapchat   | ✓       | Email-only first step (password requires server-side validation) |
-| Google     |         | |
-| Facebook   |         | |
-| Twitter/X  |         | |
-| LinkedIn   |         | |
-| GitHub     |         | |
-| Microsoft  |         | |
-| Apple      |         | |
-| Netflix    |         | |
 
 ## Legal
 

