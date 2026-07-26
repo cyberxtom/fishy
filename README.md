@@ -53,6 +53,10 @@ node bin/fishy.js captures
 ```
 
 
+## Contributing
+
+All contributions should be submitted to the `dev` branch. Please do not push directly to `main` or `master`.
+
 ## Legal
 
 This software is for **authorized security testing and educational purposes only**. You must have explicit permission to test any system you use this against. Misuse may violate applicable laws.
